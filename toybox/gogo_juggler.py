@@ -74,9 +74,8 @@ if __name__ == '__main__':
     # 動作確認
     for i in range(1, 7):
         kikaiwari = []
-        for j in range(10000):
+        for j in range(100):
             gogo = GoGoJuggler(i)
             result_list = gogo.simulate(8000)
-            #print("機械割:%.1f%%"%(100.*gogo.count_medals_out(result_list)/gogo.count_medals_in(result_list)))
             kikaiwari.append(100.*gogo.count_medals_out(result_list)/gogo.count_medals_in(result_list))
-        print("設定:%d, 機械割(1000回平均):%.1f%%"%(i, np.mean(kikaiwari)))
+        print("設定:%d, 機械割(8000回転x100回平均):%.1f%%"%(i, np.mean(kikaiwari)))

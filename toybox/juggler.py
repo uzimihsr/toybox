@@ -1,8 +1,9 @@
 """
-lottery.py
+juggler.py
 
 動作確認環境
 python : 3.7.3
+numpy : 1.16.4
 """
 
 import sys
@@ -14,9 +15,12 @@ class Juggler(Lottery):
     """
     ジャグラー(スロット)のクラス
 
-    name : 機種名
-    table : 抽選テーブル, 選択肢(key)と確率分布(value)が対応している辞書型.
-    medals : マシン内のメダル数
+    Parameters
+    ----------
+    name : 文字列
+        機種名
+    table : 選択肢(key)と確率分布(value)が対応している辞書型
+        抽選テーブル
     """
     def __init__(self,
                  name="名無しのジャグラー",
@@ -39,7 +43,10 @@ class Juggler(Lottery):
         """
         複数回回転させて結果をnp.arrayで返す.
 
-        times : 抽選回数, 整数型
+        Parameters
+        ----------
+        times : 整数
+            抽選回数
         """
         draw_result_list = super().draw(times)
         return draw_result_list
@@ -48,56 +55,115 @@ class Juggler(Lottery):
         """
         抽選結果リストから各出目の出現回数を算出する
 
-        result_list : 抽選結果のnp.array
+        Parameters
+        ----------
+        result_list : np.array(文字列)
+            抽選結果のリスト
+
+        Returns
+        -------
         counter : 出目(key)と出現回数(value)が対応した辞書型
+            各出目の出現回数
         """
         counter = {}
         for key in self.table.keys():
             counter.setdefault(key, np.count_nonzero(result_list==key))
         return counter
 
+    def count_medals_in(self, result_list):
+        """
+        抽選結果リストから現在までに投入されたメダル数を計算する
+
+        Parameters
+        ----------
+        result_list : np.array(文字列)
+            抽選結果のリスト
+
+        Returns
+        -------
+        medals_in : 整数
+            抽選結果から計算した現在までに投入されたメダル数
+        """
+        counter = self.count_results(result_list)
+        medals_in = len(result_list) * (3) + counter["REPLAY"] * (-3)
+        return medals_in
+
+    def count_medals_out(self, result_list):
+        """
+        抽選結果リストから現在までに払い出されたメダル数を計算する
+
+        Parameters
+        ----------
+        result_list : np.array(文字列)
+            抽選結果のリスト
+
+        Returns
+        -------
+        medals_out : 整数
+            抽選結果から計算した現在までに払い出されたメダル数
+        """
+        counter = self.count_results(result_list)
+        medals_out = counter["BIG"] * (309) + \
+                     counter["REG"] * (101) + \
+                     counter["CHERRY_BIG"] * (309) + \
+                     counter["CHERRY_REG"] * (101) + \
+                     counter["CHERRY"] * (1) + \
+                     counter["GRAPE"] * (7) + \
+                     counter["PIERROT"] * (10) + \
+                     counter["BELL"] * (15)
+        return medals_out
+
     def count_medals(self, result_list):
         """
         抽選結果リストから現在のメダル数を計算する
 
-        result_list : 抽選結果のnp.array
+        Parameters
+        ----------
+        result_list : np.array(文字列)
+            抽選結果のリスト
+
+        Returns
+        -------
+        medals : 整数
+            抽選結果から計算した現在のメダル数
         """
-        counter = self.count_results(result_list)
-        medals = len(result_list) * (-3) + \
-                 counter["BIG"] * (312) + \
-                 counter["REG"] * (104) + \
-                 counter["CHERRY_BIG"] * (312) + \
-                 counter["CHERRY_REG"] * (104) + \
-                 counter["CHERRY"] * (1) + \
-                 counter["GRAPE"] * (7) + \
-                 counter["REPLAY"] * (3) + \
-                 counter["PIERROT"] * (10) + \
-                 counter["BELL"] * (15)
+        # counter = self.count_results(result_list)
+        # medals = len(result_list) * (-3) + \
+        #          counter["BIG"] * (312) + \
+        #          counter["REG"] * (104) + \
+        #          counter["CHERRY_BIG"] * (312) + \
+        #          counter["CHERRY_REG"] * (104) + \
+        #          counter["CHERRY"] * (1) + \
+        #          counter["GRAPE"] * (7) + \
+        #          counter["REPLAY"] * (3) + \
+        #          counter["PIERROT"] * (10) + \
+        #          counter["BELL"] * (15)
+        medals = self.count_medals_out(result_list) - self.count_medals_in(result_list)
         return medals
 
     def big(self):
         """
         BIGが出た場合の処理.
         """
-        print("BIG!")
+        print("ペカッ!")
 
     def reg(self):
         """
         REGが出た場合の処理.
         """
-        print("REG!")
+        print("ペカッ!")
 
     def cherry_big(self):
         """
         CHERRY_BIGが出た場合の処理.
         """
-        print("チェリー(BIG)")
+        print("チェリー(ペカッ!)")
 
     def cherry_reg(self):
         """
         CHERRY_REGが出た場合の処理.
         """
-        print("チェリー(REG)")
+        print("チェリー(ペカッ!)")
 
     def cherry(self):
         """
@@ -144,7 +210,7 @@ if __name__ == '__main__':
 
     juggler = Juggler()
     juggler.draw()
-    juggler.simulate(19)
-    print(juggler.result_list)
-    print(juggler.count_results(juggler.result_list))
-    print(juggler.count_medals(juggler.result_list))
+    result_list = juggler.simulate(19)
+    print(result_list)
+    print(juggler.count_results(result_list))
+    print(juggler.count_medals(result_list))

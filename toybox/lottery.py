@@ -11,30 +11,38 @@ import numpy as np
 
 class Lottery:
     """
-    くじ引きのクラス
+    くじ引きのクラス.
 
-    table : 抽選テーブル, 選択肢(key)と確率分布(value)が対応している辞書型.
-    result : 抽選結果, tableのkeyと同じ型
-    result_list : 複数の抽選結果, resultのnp.array
+    Parameters
+    ----------
+    table : 選択肢(key)と確率分布(value)が対応している辞書型
+        抽選テーブル
     """
     def __init__(self, table={"HIT":0.1, "MISS":0.9}):
+        # 抽選テーブル
         self.table = table
-        self.result = None
-        self.result_list = None
 
     def draw(self, times=1):
         """
-        抽選を行い, 結果を返す
-        1以上の回数を指定された場合は複数の結果をnp.arrayで返す
+        抽選を行い, 結果を返す.
+        1以上の回数を指定された場合は複数の結果をnp.arrayで返す.
 
-        times : 抽選回数, 整数型
+        Parameters
+        ----------
+        times : 整数
+            抽選回数
+
+        Returns
+        -------
+        result : 文字列またはnp.array(文字列)
+            抽選結果(単独または複数回)
         """
         if(times==1):
-            self.result = np.random.choice(list(self.table.keys()), p=list(self.table.values()))
-            return self.result
+            result = np.random.choice(list(self.table.keys()), p=list(self.table.values()))
+            return result
         else:
-            self.result_list = np.random.choice(list(self.table.keys()), times, p=list(self.table.values()))
-            return self.result_list
+            result_list = np.random.choice(list(self.table.keys()), times, p=list(self.table.values()))
+            return result_list
 
 
 if __name__ == '__main__':
